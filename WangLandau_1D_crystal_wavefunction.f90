@@ -1,4 +1,4 @@
--!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
 !Definitions of kind value to integer variables
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
 MODULE integer_kind
@@ -28,7 +28,7 @@ MODULE WL_variables
                 & accept_counter, mcs_bin, mcs, nEbins,Np
   REAL(8) :: lnf_min, p, pi, mcs_inv, accept_ratio, epsilon, epsilon_inv, &
            & lnf, delta_E, en_min, en_max, E_current, E_trial, k_current, &
-           & k_trial, E0, t0, a , Lx ,sigma
+           & k_trial, E0, t0, a , Lx, sigma
   INTEGER(K15),ALLOCATABLE,DIMENSION(:) :: he
   REAL(8),ALLOCATABLE,DIMENSION(:) :: lng
   complex(8),ALLOCATABLE,DIMENSION(:) :: psi,ppsi
@@ -129,22 +129,20 @@ IMPLICIT NONE
   PRINT*, 'E0=', E0
   PRINT*, 'sigma=', sigma
   PRINT*, 't0 = ', t0, 'and a = ', a
-  Np=int(Lx/a)
   PRINT*, 'Lx = ', Lx, 'and Np = ', Np
   PRINT*, 'Energy discretization with bin size epsilon = ', epsilon
-  
-  print*,'ok'
-  
+
+  !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
+  !Defining some variables and allocating memory:
+  !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
+    
+  Np=int(Lx/a)
   ALLOCATE(psi(0:Np+1))
   ALLOCATE(ppsi(0:Np+1))
 
   psi=dcmplx(0.0D0,0.0D0)
   ppsi=psi
   imag=cmplx(0.0,1.0D0)
-  
-  !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
-  !Defining some variables and allocating memory:
-  !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
   epsilon_inv = 1.0D0/epsilon
   pi = 4.0D0*DATAN(1.0D0)  !Defining pi
   
@@ -165,7 +163,8 @@ IMPLICIT NONE
   PRINT*, 'Monte Carlo sweeps =', mcs
   mcs_inv = 1.0D0/DBLE(mcs)  !inverse of monte carlo sweep
   ALLOCATE(he(rangeE_min:rangeE_max),lng(rangeE_min:rangeE_max))
-  PRINT*,'The memory was allocated.'
+  PRINT*,'The memory was allocated and the variables was initilizated.'
+  
   !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
   !Finishing the initialization subroutine:
   !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -!
@@ -211,21 +210,13 @@ SUBROUTINE energy(E_aux, iE_aux, k_aux)
 
   E_aux=DREAL(SUM(CONJG(psi)*ppsi))
   iE_aux = NINT(E_aux*epsilon_inv)
-!  E_aux = 0.0
-!  DO i=1,Np
-!    E_aux=E_aux+DREAL(CONJG(psi(i))*ppsi(i))
-!  END DO
-!  print*,'E_aux=',E_aux
-
-
-!  OPEN(UNIT=210, FILE='kxEner.out',access='append')
-!  WRITE(210,*) k_aux,E_aux
-!  CLOSE(210)
-  
 
   RETURN
 END SUBROUTINE energy
 
+!------------------------------------------------------------------------------!
+!Wave function
+!------------------------------------------------------------------------------!
 SUBROUTINE psi1D(sigma1,kx,x0)
   USE WL_variables
   IMPLICIT NONE
@@ -239,12 +230,13 @@ SUBROUTINE psi1D(sigma1,kx,x0)
   END DO
   norm=DREAL(sum(CONJG(psi)*psi))
   psi=psi/sqrt(norm)
-!  print*,DREAL(sum(CONJG(psi)*psi))
 
   RETURN
 END SUBROUTINE psi1D
 
-
+!------------------------------------------------------------------------------!
+!Wave function bracked  
+!------------------------------------------------------------------------------!
 SUBROUTINE ppsi1D()
   USE WL_variables
   IMPLICIT NONE
